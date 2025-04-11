@@ -131,7 +131,7 @@
             <div class="d-flex">
               <img src="${data.poster}" style="height:15rem;width:10rem;object-fit:cover;" class="mr-3" />
               <div>
-                <h2>${slug.replace(/-/g, ' ')}</h2>
+                <h2>${slug.replace(/-/g, ' ').toUpperCase()}</h2>
                 <p>Rating: <i class="fas fa-star text-yellow-400"></i> ${data.score.value}</p>
                 <p>Status: ${data.status}</p>
                 <p>Episodes: ${data.episodes}</p>
