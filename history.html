@@ -111,27 +111,27 @@
     </div>
     <div class="footer">
         <button>
-            <a href="/">
+            <a href="index.html">
                 <i class="fas fa-home"></i>
             </a>
         </button>
         <button>
-            <a href="movie">
+            <a href="movie.html">
                 <i class="fas fa-film"></i>
             </a>
         </button>
         <button>
-            <a href="anime">
+            <a href="anime.html">
                 <i class="fas fa-images"></i>
             </a>
         </button>
         <button>
-            <a href="genre">
+            <a href="genre.html">
                 <i class="fas fa-file-video"></i>
             </a>
         </button>
         <button>
-            <a href="history">
+            <a href="history.html">
                 <i class="fas fa-history" style="color: red;"></i>
             </a>
         </button>
@@ -155,7 +155,7 @@
                         .then(video => {
                             if (video) {
                                 const row = document.createElement('a');
-                                row.href = `detail/${video.animeId}`;
+                                row.href = `cek.html?s=${video.animeId}`;
                                 row.innerHTML = `
                             <div class="row">
                                 <img height="150" width="100" src="${video.poster}" alt="${video.title}">

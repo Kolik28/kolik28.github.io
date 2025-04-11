@@ -173,27 +173,27 @@
     </div>
     <div class="footer">
         <button>
-            <a href="/">
+            <a href="index.html">
                 <i class="fas fa-home" style="color: red;"></i>
             </a>
         </button>
         <button>
-            <a href="movie">
+            <a href="movie.html">
                 <i class="fas fa-film"></i>
             </a>
         </button>
         <button>
-            <a href="anime">
+            <a href="anime.html">
                 <i class="fas fa-images"></i>
             </a>
         </button>
         <button>
-            <a href="genre">
+            <a href="genre.html">
                 <i class="fas fa-file-video"></i>
             </a>
         </button>
         <button>
-            <a href="history">
+            <a href="history.html">
                 <i class="fas fa-history"></i>
             </a>
         </button>
@@ -216,7 +216,7 @@
                             const movieItem = document.createElement('div');
                             movieItem.className = 'movie-item';
                             movieItem.innerHTML = `
-                        <a href="detail/${anime.animeId}">
+                        <a href="cek.html?s=${anime.animeId}">
                             <img width="100" height="150" src="${anime.poster}" alt="${anime.title}">
                             ${anime.episodes ? `<div class="episode">EP: ${anime.episodes}</div>` : ''}
                             ${anime.score ? `<div class="rating"><i class="fas fa-star"></i>${anime.score}</div>` : ''}
