@@ -1,4 +1,5 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,27 +151,27 @@
     </div>
     <div class="footer">
         <button>
-            <a href="index.html">
+            <a href="/">
                 <i class="fas fa-home"></i>
             </a>
         </button>
         <button>
-            <a href="movie.html">
+            <a href="movie">
                 <i class="fas fa-film" style="color: red;"></i>
             </a>
         </button>
         <button>
-            <a href="anime.html">
+            <a href="anime">
                 <i class="fas fa-images"></i>
             </a>
         </button>
         <button>
-            <a href="genre.html">
+            <a href="genre">
                 <i class="fas fa-file-video"></i>
             </a>
         </button>
         <button>
-            <a href="history.html">
+            <a href="history">
                 <i class="fas fa-history"></i>
             </a>
         </button>
@@ -193,7 +194,7 @@
                             const movieItem = document.createElement('div');
                             movieItem.className = 'movie-item';
                             movieItem.innerHTML = `
-                        <a href="cek.html?s=${movie.animeId}">
+                        <a href="detail/${movie.animeId}">
                             <img width="100" height="150" src="${movie.poster}" alt="${movie.title}">
                             <div class="rating"><i class="fas fa-star"></i>${movie.score}</div>
                             <div class="info">
