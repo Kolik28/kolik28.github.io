@@ -82,15 +82,15 @@
             height: 360px;
         }
 
-        .btn-eps {
+        .episode-btn {
             background-color: rgb(209 213 219 /1);
             color: #000;
         }
 
-        .active-btn {
-            background-color: darkred;
-            color: white;
-        }
+        .episode-btn.active {
+      background-color: darkred !important;
+      color: white !important;
+    }
     </style>
 </head>
 
@@ -101,121 +101,110 @@
         </button>
         <span>NODELIK</span>
     </div>
-    <div class="content p-2" id="content">
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const animeId = new URLSearchParams(window.location.search).get('s');
-            if (animeId) {
-                fetchAnimeDetails(animeId);
-            }
-        });
-
-        let currentEpisodeId = null;
-        let currentServerId = null;
-
-        function fetchAnimeDetails(animeId) {
-            const url = `https://wajik-anime-api.vercel.app/samehadaku/anime/${animeId}`;
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.data) {
-                        const details = data.data;
-                        displayAnimeDetails(details);
-                        displayEpisodes(details.episodeList);
-                    }
-                })
-                .catch(error => console.error('Error fetching anime details:', error));
-        }
-
-        function displayAnimeDetails(details) {
-            const content = document.getElementById('content');
-            content.innerHTML = `
-        <div class="anime-info">
+    <div class="content p-2">
+        <div id="animeInfo" class="anime-info mb-3"></div>
+    
+        <div class="bg-gray-800 p-2 mt-2">
+          <span class="font-bold text-white">Pilih Episode</span>
+          <div id="episodeButtons" class="d-flex flex-wrap gap-2 mt-2"></div>
+        </div>
+    
+        <div id="serverSection" class="p-1 mt-3" style="display:none;">
+          <span class="font-bold text-white">Pilih Server</span>
+          <div id="serverButtons" class="d-flex flex-wrap gap-2 mt-2"></div>
+          <iframe id="videoPlayer" height="360" width="100%" frameBorder="0" allowfullscreen class="mt-3"></iframe>
+        </div>
+      </div>
+      <script>
+        const query = new URLSearchParams(window.location.search);
+        const slug = query.get("s");
+    
+        let selectedEpisodeId = null;
+    
+        async function fetchAnimeDetails() {
+          const res = await fetch(`https://wajik-anime-api.vercel.app/samehadaku/anime/${slug}`);
+          const json = await res.json();
+          const data = json.data;
+    
+          const animeInfo = document.getElementById("animeInfo");
+          animeInfo.innerHTML = `
             <div class="d-flex">
-                <img style="height: 15rem; width: 10rem; object-fit: cover;" class="mr-3 d-block" src="${details.poster}" height="200" width="150">
-                <div class="d-block font-bold">
-                    <h2 class="mb-1 mt-1">${details.title}</h2>
-                    <p class="mb-1">Rating: <i class="fas fa-star text-yellow-400"></i>${details.score.value}</p>
-                    <p class="mb-1">Status: ${details.status}</p>
-                    <p class="mb-1">Episode: ${details.episodes}</p>
-                    <p class="mb-1">Genre: ${details.genreList.map(g => g.title).join(' ')}</p>
-                    <p class="mb-1">${details.season} ${details.studios} ${details.aired}</p>
-                </div>
+              <img src="${data.poster}" style="height:15rem;width:10rem;object-fit:cover;" class="mr-3" />
+              <div>
+                <h2>${slug.replace(/-/g, ' ')}</h2>
+                <p>Rating: <i class="fas fa-star text-yellow-400"></i> ${data.score.value}</p>
+                <p>Status: ${data.status}</p>
+                <p>Episodes: ${data.episodes}</p>
+                <p>Genre: ${data.genreList.map(g => g.title).join(', ')}</p>
+                <p>${data.season} ${data.studios} ${data.aired}</p>
+              </div>
             </div>
-        </div>
-        <div class="bg-gray-800 p-2 mt-2" id="episodeList"></div>
-        <div class="p-2" id="videoPlayer"></div>
-    `;
+          `;
+    
+          const episodes = data.episodeList;
+          const container = document.getElementById("episodeButtons");
+          container.innerHTML = "";
+    
+          episodes.forEach(ep => {
+            const btn = document.createElement("button");
+            btn.className = "btn bg-gray-300 text-black font-bold episode-btn";
+            btn.textContent = "EPS " + ep.title;
+            btn.onclick = () => loadEpisode(ep.episodeId, btn);
+            container.appendChild(btn);
+          });
         }
-
-        function displayEpisodes(episodes) {
-            const episodeList = document.getElementById('episodeList');
-            episodeList.innerHTML = `<span class="font-bold text-white">Pilih Episode</span>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            ${episodes.map(eps => `<button class="episode-button btn-eps font-bold" data-episode-id="${eps.episodeId}" style="border-radius: 5px; font-size: 14px; padding: 7px 20px;">EPS ${eps.title}</button>`).join('')}
-        </div>`;
-            document.querySelectorAll('.episode-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentEpisodeId = btn.dataset.episodeId;
-                    fetchEpisodeDetails(currentEpisodeId);
-                    updateHistory(currentEpisodeId);
-                    document.querySelectorAll('.episode-button').forEach(button => button.classList.remove('active-btn'));
-                    btn.classList.add('active-btn');
-                });
+    
+        async function loadEpisode(id, button) {
+          selectedEpisodeId = id;
+          document.querySelectorAll(".episode-btn").forEach(b => b.classList.remove("active"));
+          button.classList.add("active");
+    
+          saveToHistory(id);
+    
+          const res = await fetch(`https://wajik-anime-api.vercel.app/samehadaku/episode/${id}`);
+          const json = await res.json();
+          const video = json.data;
+    
+          const qualities = video.server.qualities;
+          const serverButtons = document.getElementById("serverButtons");
+          const videoPlayer = document.getElementById("videoPlayer");
+          const serverSection = document.getElementById("serverSection");
+    
+          serverButtons.innerHTML = "";
+          serverSection.style.display = "block";
+          videoPlayer.src = video.defaultStreamingUrl;
+    
+          qualities.forEach(qty => {
+            qty.serverList.forEach(srv => {
+              const btn = document.createElement("button");
+              btn.className = "btn bg-gray-300 text-black font-bold";
+              btn.textContent = srv.title;
+              btn.onclick = async () => {
+                const res = await fetch(`https://wajik-anime-api.vercel.app/samehadaku/server/${srv.serverId}`);
+                const json = await res.json();
+                videoPlayer.src = json.data.url;
+              };
+              serverButtons.appendChild(btn);
             });
+          });
         }
-
-        function fetchEpisodeDetails(episodeId) {
-            const url = `https://wajik-anime-api.vercel.app/samehadaku/episode/${episodeId}`;
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.data) {
-                        const video = data.data;
-                        displayVideoServers(video);
-                    }
-                })
-                .catch(error => console.error('Error fetching episode details:', error));
+    
+        function saveToHistory(episodeId) {
+          let history = JSON.parse(localStorage.getItem("history_film") || "[]");
+          const index = history.findIndex(h => h.film_id === episodeId);
+          const timestamp = Date.now();
+    
+          if (index !== -1) {
+            history[index].timestamp = timestamp;
+          } else {
+            history.push({ film_id: episodeId, timestamp });
+          }
+    
+          localStorage.setItem("history_film", JSON.stringify(history));
         }
-
-        function displayVideoServers(video) {
-            const videoPlayer = document.getElementById('videoPlayer');
-            let videoUrl = video.defaultStreamingUrl;
-            if (currentServerId) {
-                const selectedServer = video.server.qualities.flatMap(q => q.serverList).find(s => s.serverId === currentServerId);
-                if (selectedServer) {
-                    videoUrl = selectedServer.url;
-                }
-            }
-
-            videoPlayer.innerHTML = `<span class="font-bold text-white">Pilih Server</span>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            ${video.server.qualities.flatMap(q => q.serverList).map(server => `<button class="server-button bg-gray-300 text-black font-bold" data-server-id="${server.serverId}" style="border-radius: 5px; font-size: 14px; padding: 7px 20px;">${server.title}</button>`).join('')}
-        </div>
-        <iframe height="360" width="100%" frameBorder="0" allowfullscreen src="${videoUrl}"></iframe>`;
-
-            document.querySelectorAll('.server-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentServerId = btn.dataset.serverId;
-                    displayVideoServers(video);
-                    document.querySelectorAll('.server-button').forEach(button => button.classList.remove('active-button'));
-                    btn.classList.add('active-button');
-                });
-            });
-        }
-
-        function updateHistory(episodeId) {
-            let history = JSON.parse(localStorage.getItem('history_film')) || [];
-            const existingIndex = history.findIndex(item => item.film_id === episodeId);
-            if (existingIndex !== -1) {
-                history[existingIndex].timestamp = Date.now();
-            } else {
-                history.push({ film_id: episodeId, timestamp: Date.now() });
-            }
-            localStorage.setItem('history_film', JSON.stringify(history));
-        }
-    </script>
+    
+        fetchAnimeDetails();
+      </script>
 </body>
 
 </html>
