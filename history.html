@@ -1,0 +1,195 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoNime</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      /* overflow: hidden; */
+    }
+
+    .header {
+      top: 0;
+      font-size: 40px;
+      font-weight: bold;
+      margin-top: 10;
+      display: inline-flex;
+    }
+
+    .header span {
+      color: #FF3D3D;
+      filter: drop-shadow(0 0 1.1rem red);
+    }
+
+    .footer {
+      bottom: 0;
+      position: fixed;
+      width: 100%;
+      background-color: #333;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+
+    .footer button {
+      background-color: #333;
+      border: none;
+    }
+
+    .footer i {
+      color: white;
+      font-size: 35px;
+    }
+
+    .section-title {
+    font-size: 17px;
+    margin: 15px 0;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.grid::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+.grid {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.grid {
+    display: block;
+    padding: 0 20px;
+    margin-bottom: 40px;
+    position: relative;
+    height: calc(75%);
+    overflow-y: auto;
+}
+
+.row {
+    display: flex;
+    margin: 1rem 0;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+.title {
+    margin-left: 1rem;
+}
+
+.grid::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+.grid {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    justify-content: center;
+}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>NODELIK</span>
+      </div>
+      <div class="section-title">History</div>
+      <div class="grid" id="historyGrid">
+      </div>
+    <div class="footer">
+        <button>
+            <a href="index.html">
+                <i class="fas fa-home"></i>
+            </a>
+        </button>
+        <button>
+            <a href="movie.html">
+                <i class="fas fa-film"></i>
+            </a>
+        </button>
+        <button>
+            <a href="anime.html">
+                <i class="fas fa-images"></i>
+            </a>
+        </button>
+        <button>
+            <a href="genre.html">
+                <i class="fas fa-file-video"></i>
+            </a>
+        </button>
+        <button>
+            <a href="history.html">
+                <i class="fas fa-history" style="color: red;"></i>
+            </a>
+        </button>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    displayHistory();
+});
+
+function displayHistory() {
+    const history = JSON.parse(localStorage.getItem('history_film')) || [];
+    const historyGrid = document.getElementById('historyGrid');
+    historyGrid.innerHTML = ''; // Clear previous history
+
+    history.sort((a, b) => b.timestamp - a.timestamp); // Sort by timestamp
+
+    if (history.length > 0) {
+        history.forEach(item => {
+            fetchFilmDetails(item.film_id)
+                .then(video => {
+                    if (video) {
+                        const row = document.createElement('a');
+                        row.href = `cek.html?s=${video.animeId}`;
+                        row.innerHTML = `
+                            <div class="row">
+                                <img height="150" width="100" src="${video.poster}" alt="${video.title}">
+                                <div class="title">
+                                    <h3>${video.title}</h3>
+                                    <h4>${video.releasedOn}</h4>
+                                </div>
+                            </div>
+                        `;
+                        historyGrid.appendChild(row);
+                    } else {
+                        historyGrid.innerHTML += `<p>Gagal mengambil informasi film dengan ID: ${item.film_id}</p>`;
+                    }
+                });
+        });
+    } else {
+        historyGrid.innerHTML = '<p>Riwayat film kosong.</p>';
+    }
+}
+
+function fetchFilmDetails(filmId) {
+    const url = `https://wajik-anime-api.vercel.app/samehadaku/episode/${filmId}`;
+    return fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.data) {
+                return data.data;
+            } else {
+                return null;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching film details:', error);
+            return null;
+        });
+}
+    </script>
+</body>
+</html>
