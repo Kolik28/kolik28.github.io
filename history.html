@@ -145,36 +145,38 @@
         function displayHistory() {
             const history = JSON.parse(localStorage.getItem('history_film')) || [];
             const historyGrid = document.getElementById('historyGrid');
-            historyGrid.innerHTML = ''; // Clear previous history
+            historyGrid.innerHTML = '';
 
-            history.sort((a, b) => b.timestamp - a.timestamp); // Sort by timestamp
+            const sortedHistory = history.sort((a, b) => b.timestamp - a.timestamp);
 
-            if (history.length > 0) {
-                history.forEach(item => {
-                    fetchFilmDetails(item.film_id)
-                        .then(video => {
-                            if (video) {
-                                const row = document.createElement('a');
-                                row.href = `cek.html?s=${video.animeId}`;
-                                row.innerHTML = `
-                            <div class="row">
-                                <img height="150" width="100" src="${video.poster}" alt="${video.title}">
-                                <div class="title">
-                                    <h3>${video.title}</h3>
-                                    <h4>${video.releasedOn}</h4>
-                                </div>
-                            </div>
-                        `;
-                                historyGrid.appendChild(row);
-                            } else {
-                                historyGrid.innerHTML += `<p>Gagal mengambil informasi film dengan ID: ${item.film_id}</p>`;
-                            }
-                        });
-                });
-            } else {
+            if (sortedHistory.length === 0) {
                 historyGrid.innerHTML = '<p>Riwayat film kosong.</p>';
+                return;
             }
+
+            sortedHistory.forEach(item => {
+                fetchFilmDetails(item.film_id).then(video => {
+                    if (!video) {
+                        historyGrid.innerHTML += `<p>Gagal ambil data ID: ${item.film_id}</p>`;
+                        return;
+                    }
+
+                    const row = document.createElement('a');
+                    row.href = `cek.html?s=${video.animeId}`;
+                    row.innerHTML = `
+                <div class="row">
+                    <img height="150" width="100" src="${video.poster}" alt="${video.title}">
+                    <div class="title">
+                        <h3>${video.title}</h3>
+                        <h4>${video.releasedOn}</h4>
+                    </div>
+                </div>
+            `;
+                    historyGrid.appendChild(row);
+                });
+            });
         }
+
 
         function fetchFilmDetails(filmId) {
             const url = `https://wajik-anime-api.vercel.app/samehadaku/episode/${filmId}`;
