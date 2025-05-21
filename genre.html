@@ -212,7 +212,7 @@
         let currentGenre = "fantasy";
 
         function fetchGenres() {
-            const url = "https://wajik-anime-api.vercel.app/samehadaku/genres";
+            const url = "https://anime.nodelik.xyz/samehadaku/genres";
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -241,7 +241,7 @@
         }
 
         function fetchAnimeByGenre(genreId) {
-            const url = `https://wajik-anime-api.vercel.app/samehadaku/genres/${genreId}`;
+            const url = `https://anime.nodelik.xyz/samehadaku/genres/${genreId}`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
